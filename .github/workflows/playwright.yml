@@ -4,9 +4,6 @@ on:
   issue_comment:
     types: [created]
 
-permissions:
-  issues: write
-
 jobs:
   find-vercel-preview-url:
     timeout-minutes: 5
@@ -45,6 +42,8 @@ jobs:
     env:
       VERCEL_PROTECTION_BYPASS: ${{ secrets.VERCEL_PROTECTION_BYPASS }}
       UI_TEST_TARGET_URL: ${{ needs.find-vercel-preview-url.outputs.vercel_preview_url }}
+    permissions:
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
