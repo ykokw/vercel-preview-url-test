@@ -42,6 +42,11 @@ export default defineConfig({
       ? process.env.UI_TEST_TARGET_URL
       : "http://localhost:3000",
 
+    extraHTTPHeaders: {
+      // NOTE: Skip Vercel toolbar in the test environment.
+      "x-vercel-skip-toolbar": "1",
+      "x-vercel-protection-bypass": process.env.VERCEL_PROTECTION_BYPASS ?? '',
+    },
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
   },
