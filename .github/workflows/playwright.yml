@@ -10,6 +10,7 @@ on:
     types:
       - opened
       - reopened
+      - synchronize
 
 jobs:
   find-vercel-preview-url:
@@ -32,7 +33,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Set env for search Preview Deployment URL
-        if: ${{ steps.get_pr_details.result == 'success' }}}
+        if: steps.get_pr_details.conclusion == 'success'
         run: echo "PREVIEW_SOURCE_BRANCH=${{ fromJson(steps.get_pr_details.outputs.data).head.ref }}" >> $GITHUB_ENV
       - name: Find Vercel Preview URL
         uses: ykokw/vercel-preview-url@source-branch-env
