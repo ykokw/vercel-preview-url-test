@@ -18,6 +18,7 @@ jobs:
     outputs:
       vercel_preview_url: "https://${{ steps.find-vercel-preview-url.outputs.preview_url }}"
     if: |
+      github.event_name == 'pull_request_target' ||
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test')
     steps:
