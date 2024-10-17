@@ -63,7 +63,9 @@ jobs:
         run: npx playwright test
       - name: Comment test results to PR
         uses: daun/playwright-report-summary@v3
-        if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test')
+        if: |
+          github.event_name == 'pull_request_target' ||
+          github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test')
         with:
           report-file: test-results.json
       - uses: actions/upload-artifact@v4
