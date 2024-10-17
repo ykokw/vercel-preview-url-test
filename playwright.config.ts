@@ -11,10 +11,12 @@ import { defineConfig, devices } from "@playwright/test";
 const webServerConfig = process.env.CI
   ? {}
   : {
-      command: "npm run dev",
-      url: "http://localhost:3000",
-      reuseExistingServer: !process.env.CI,
-      timeout: 120 * 1000,
+      webServer: {
+        command: "npm run dev",
+        url: "http://localhost:3000",
+        reuseExistingServer: !process.env.CI,
+        timeout: 120 * 1000,
+      },
     };
 /**
  * See https://playwright.dev/docs/test-configuration.
