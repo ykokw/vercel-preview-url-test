@@ -5,12 +5,42 @@ on:
     types: [created]
 
 jobs:
-  test:
-    timeout-minutes: 60
+  find-vercel-preview-url:
+    timeout-minutes: 5
+    name: Find Vercel Preview URL
     runs-on: ubuntu-latest
+    outputs:
+      vercel_preview_url: "https://${{ steps.find-vercel-preview-url.outputs.preview_url }}"
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test')
+    steps:
+      - name: Get PR details
+        id: get_pr_details
+        uses: octokit/request-action@v2.x
+        if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test')
+        with:
+          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.issue.number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Find Vercel Preview URL
+        uses: ykokw/vercel-preview-url@source-branch-env
+        id: find-vercel-preview-url
+        env:
+          PREVIEW_SOURCE_BRANCH: ${{ fromJson(steps.get_pr_details.outputs.data).head.ref }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        with:
+          vercel_team_id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel_project_id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel_limit: 50
+          vercel_state: READY
+  test:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    needs: [find-vercel-preview-url]
+    if: ${{ needs.find-vercel-preview-url.outputs.vercel_preview_url != '' }}
+    env:
+      UI_TEST_TARGET_URL: ${{ needs.find-vercel-preview-url.outputs.vercel_preview_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
