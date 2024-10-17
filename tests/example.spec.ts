@@ -11,3 +11,9 @@ test('has documents link', async ({ page }) => {
 
   await expect(page.getByRole('link', { name: 'Read our docs' } )).toBeVisible();
 });
+
+test('has deploy link', async ({ page }) => {
+  await page.goto('/');
+
+  await expect(page.getByRole('link', { name: 'Deploy now' } )).toBeVisible();
+});
