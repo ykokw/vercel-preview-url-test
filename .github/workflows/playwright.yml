@@ -34,7 +34,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Set env for search Preview Deployment URL
         if: steps.get_pr_details.conclusion == 'success'
-        run: echo "PREVIEW_SOURCE_BRANCH=${{ fromJson(steps.get_pr_details.outputs.data).head.ref }}" >> $GITHUB_ENV
+        run: echo "SEARCH_BRANCH_NAME=${{ fromJson(steps.get_pr_details.outputs.data).head.ref }}" >> $GITHUB_ENV
       - name: Find Vercel Preview URL
         uses: ykokw/vercel-preview-url@optional-search-branch-name-env
         id: find-vercel-preview-url
