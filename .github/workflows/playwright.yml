@@ -24,10 +24,6 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test')
     steps:
-      - name: Display event data
-        if: github.event_name == 'issue_comment' && github.event.issue.pull_request
-        run: echo "${{ toJson(github.event.issue.pull_request.head) }}"
-        #run: echo "SEARCH_BRANCH_NAME=${{ fromJson(steps.get_pr_details.outputs.data).head.ref }}" >> $GITHUB_ENV
       - name: Get PR details
         id: get_pr_details
         uses: octokit/request-action@v2.x
@@ -36,6 +32,10 @@ jobs:
           route: GET /repos/${{ github.repository }}/pulls/${{ github.event.issue.number }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set latest commit SHA
+        if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test')
+        id: set_latest_commit_sha
+        run: echo "latest_commit_sha=${{ fromJson(steps.get_pr_details.outputs.data).head.ref }}" >> "$GITHUB_OUTPUT"
       - name: Set env for search Preview Deployment URL
         if: steps.get_pr_details.conclusion == 'success'
         run: echo "SEARCH_BRANCH_NAME=${{ fromJson(steps.get_pr_details.outputs.data).head.ref }}" >> $GITHUB_ENV
@@ -59,6 +59,7 @@ jobs:
       UI_TEST_TARGET_URL: ${{ needs.find-vercel-preview-url.outputs.vercel_preview_url }}
     permissions:
       pull-requests: write
+      checks: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -69,6 +70,7 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
+        id: tests-step
         run: npx playwright test
       - name: Comment test results to PR
         uses: daun/playwright-report-summary@v3
@@ -83,3 +85,38 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+      - name: Set success commit status
+        uses: actions/github-script@v7
+        if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test') && ${{ steps.tests-step.outcome == 'success' }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.checks.create({
+              name: 'Playwright test',
+              head_sha: '${{ needs.find-vercel-preview-url.outputs.set_latest_commit_sha.outputs.latest_commit_sha }}',
+              status: 'completed',
+              conclusion: '${{ steps.tests-step.outcome }}',
+              output: {
+                title: 'Playwright test',
+                summary: 'Results: ${{ steps.tests-step.outcome }}'
+              },
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            })
+      - name: Set success commit status
+        uses: actions/github-script@v7
+        if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test') && ${{ steps.tests-step.outcome == 'failure' }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.checks.create({
+              name: 'Playwright test',
+              head_sha: '${{ needs.find-vercel-preview-url.outputs.set_latest_commit_sha.outputs.latest_commit_sha }}',
+              status: 'failure',
+              output: {
+                title: 'Playwright test',
+                summary: 'Results: ${{ steps.tests-step.outcome }}'
+              },
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            })
