@@ -91,7 +91,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            github.checks.create({
+            github.rest.checks.create({
               name: 'Playwright test',
               head_sha: '${{ needs.find-vercel-preview-url.outputs.set_latest_commit_sha.outputs.latest_commit_sha }}',
               status: 'completed',
@@ -109,7 +109,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            github.checks.create({
+            github.rest.checks.create({
               name: 'Playwright test',
               head_sha: '${{ needs.find-vercel-preview-url.outputs.set_latest_commit_sha.outputs.latest_commit_sha }}',
               status: 'failure',
