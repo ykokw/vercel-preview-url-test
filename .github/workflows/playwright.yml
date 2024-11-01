@@ -93,7 +93,7 @@ jobs:
           script: |
             github.rest.checks.create({
               name: 'Playwright test',
-              head_sha: '${{ needs.find-vercel-preview-url.outputs.set_latest_commit_sha.outputs.latest_commit_sha }}',
+              head_sha: '${{ needs.find-vercel-preview-url.outputs.set_latest_commit_sha.latest_commit_sha }}',
               status: 'completed',
               conclusion: '${{ steps.tests-step.outcome }}',
               output: {
@@ -111,7 +111,7 @@ jobs:
           script: |
             github.rest.checks.create({
               name: 'Playwright test',
-              head_sha: '${{ needs.find-vercel-preview-url.outputs.set_latest_commit_sha.outputs.latest_commit_sha }}',
+              head_sha: '${{ needs.find-vercel-preview-url.outputs.set_latest_commit_sha.latest_commit_sha }}',
               status: 'failure',
               output: {
                 title: 'Playwright test',
