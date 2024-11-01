@@ -36,7 +36,7 @@ jobs:
       - name: Set latest commit SHA
         if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test')
         id: set_latest_commit_sha
-        run: echo "latest_commit_sha=${{ fromJson(steps.get_pr_details.outputs.data).head.ref }}" >> "$GITHUB_OUTPUT"
+        run: echo "latest_commit_sha=${{ fromJson(steps.get_pr_details.outputs.data).head.sha }}" >> "$GITHUB_OUTPUT"
       - name: Set env for search Preview Deployment URL
         if: steps.get_pr_details.conclusion == 'success'
         run: echo "SEARCH_BRANCH_NAME=${{ fromJson(steps.get_pr_details.outputs.data).head.ref }}" >> $GITHUB_ENV
