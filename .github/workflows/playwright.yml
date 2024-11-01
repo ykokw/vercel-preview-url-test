@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       vercel_preview_url: "https://${{ steps.find-vercel-preview-url.outputs.preview_url }}"
+      latest_commit_sha: ${{ steps.set_latest_commit_sha.outputs.latest_commit_sha }}
     if: |
       github.event_name == 'pull_request_target' ||
       github.event_name == 'workflow_dispatch' ||
@@ -34,6 +35,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Set latest commit SHA
         if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test')
+        id: set_latest_commit_sha
         run: echo "latest_commit_sha=${{ fromJson(steps.get_pr_details.outputs.data).head.ref }}" >> "$GITHUB_OUTPUT"
       - name: Set env for search Preview Deployment URL
         if: steps.get_pr_details.conclusion == 'success'
