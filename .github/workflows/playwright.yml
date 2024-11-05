@@ -112,7 +112,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           result-encoding: string
           script: |
-            const check = await github.rest.checks.update({
+            github.rest.checks.update({
               check_run_id: ${{ steps.set-in-progress-status.outputs.result }},
               name: 'Playwright test',
               head_sha: '${{ needs.find-vercel-preview-url.outputs.latest_commit_sha }}',
@@ -125,7 +125,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo
             })
-            return JSON.stringify(check, null, 2)
       - name: Set failed commit status
         uses: actions/github-script@v7
         id: set-failure-status
@@ -133,7 +132,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const check = await github.rest.checks.update({
+            github.rest.checks.update({
               check_run_id: ${{ steps.set-in-progress-status.outputs.result }},
               name: 'Playwright test',
               head_sha: '${{ needs.find-vercel-preview-url.outputs.latest_commit_sha }}',
