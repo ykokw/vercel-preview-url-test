@@ -3,14 +3,14 @@ on:
   workflow_dispatch:
   issue_comment:
     types: [created]
-  push:
-    branches: [main]
-  pull_request_target:
-    branches: [main]
-    types:
-      - opened
-      - reopened
-      - synchronize
+#  push:
+#    branches: [main]
+#  pull_request_target:
+#    branches: [main]
+#    types:
+#      - opened
+#      - reopened
+#      - synchronize
 
 jobs:
   find-vercel-preview-url:
