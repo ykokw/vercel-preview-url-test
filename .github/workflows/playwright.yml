@@ -73,6 +73,7 @@ jobs:
               name: 'Playwright test',
               head_sha: '${{ needs.find-vercel-preview-url.outputs.latest_commit_sha }}',
               status: 'completed',
+              conclusion: 'success',
               owner: context.repo.owner,
               repo: context.repo.repo
             })
