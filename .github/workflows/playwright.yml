@@ -106,6 +106,7 @@ jobs:
         if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test') && steps.tests-step.outcome == 'success'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-encoding: string
           script: |
             github.rest.checks.create({
               name: 'Playwright test',
