@@ -77,7 +77,10 @@ jobs:
               repo: context.repo.repo
             })
             return check.data.id
+      # see also: https://github.com/actions/checkout/issues/331#issuecomment-1969717208
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'issue_comment' && format('refs/pull/{0}/head', github.event.issue.number) || '' }}
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
