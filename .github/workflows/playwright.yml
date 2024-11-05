@@ -93,9 +93,7 @@ jobs:
         run: npx playwright test
       - name: Comment test results to PR
         uses: daun/playwright-report-summary@v3
-        if: |
-          github.event_name == 'pull_request_target' ||
-          github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test')
+        if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test')
         with:
           report-file: test-results.json
       - uses: actions/upload-artifact@v4
@@ -104,10 +102,9 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
-      - name: Set success commit status
+      - name: Set commit status
         uses: actions/github-script@v7
-        id: set-success-status
-        if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test') && steps.tests-step.outcome == 'success'
+        if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test')
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           result-encoding: string
@@ -124,24 +121,4 @@ jobs:
               },
               owner: context.repo.owner,
               repo: context.repo.repo
-            })
-      - name: Set failed commit status
-        uses: actions/github-script@v7
-        id: set-failure-status
-        if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test') && steps.tests-step.outcome == 'failure'
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.rest.checks.update({
-              check_run_id: ${{ steps.set-in-progress-status.outputs.result }},
-              name: 'Playwright test',
-              head_sha: '${{ needs.find-vercel-preview-url.outputs.latest_commit_sha }}',
-              status: 'completed',
-              conclusion: '${{ steps.tests-step.outcome }}',
-              output: {
-                title: 'Playwright test',
-                summary: 'Results: ${{ steps.tests-step.outcome }}'
-              },
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            })
+            }}
