@@ -65,7 +65,7 @@ jobs:
       - name: Set in progress commit status
         uses: actions/github-script@v7
         id: set-in-progress-status
-        if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test') && always()
+        if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test')
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -104,10 +104,9 @@ jobs:
           retention-days: 30
       - name: Set commit status
         uses: actions/github-script@v7
-        if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test') && always()
+        if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test') && ( success() || failure() )
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-encoding: string
           script: |
             github.rest.checks.update({
               check_run_id: ${{ steps.set-in-progress-status.outputs.result }},
