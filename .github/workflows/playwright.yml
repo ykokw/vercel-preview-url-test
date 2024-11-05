@@ -114,7 +114,7 @@ jobs:
               name: 'Playwright test',
               head_sha: '${{ needs.find-vercel-preview-url.outputs.latest_commit_sha }}',
               status: 'completed',
-              target_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
+              details_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
               conclusion: '${{ steps.tests-step.conclusion}}',
               output: {
                 title: 'Playwright test',
