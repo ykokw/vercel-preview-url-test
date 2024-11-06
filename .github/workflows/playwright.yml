@@ -72,6 +72,7 @@ jobs:
             const check = await github.rest.checks.create({
               name: 'Playwright test',
               head_sha: '${{ needs.find-vercel-preview-url.outputs.latest_commit_sha }}',
+              details_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
               status: 'in_progress',
               owner: context.repo.owner,
               repo: context.repo.repo
