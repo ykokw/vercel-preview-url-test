@@ -21,6 +21,8 @@ jobs:
     timeout-minutes: 5
     name: Find Vercel Preview URL
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     outputs:
       vercel_preview_url: "https://${{ steps.find-vercel-preview-url.outputs.preview_url }}"
       latest_commit_sha: ${{ steps.set_latest_commit_sha.outputs.latest_commit_sha }}
