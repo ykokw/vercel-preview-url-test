@@ -139,7 +139,7 @@ jobs:
           retention-days: 30
       - name: Set commit status
         uses: actions/github-script@v7
-        if: ${{ env.IS_PULL_REQUEST_COMMENT && !cancelled() }}
+        if: ${{ !cancelled() && env.IS_PULL_REQUEST_COMMENT }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
