@@ -60,7 +60,8 @@ jobs:
       UI_TEST_TARGET_URL: ${{ needs.find-vercel-preview-url.outputs.vercel_preview_url }}
     permissions:
       pull-requests: write
-      checks: write
+      statuses: write
+      # checks: write
     steps:
       - name: Set pending commit status
         uses: actions/github-script@v7
