@@ -75,7 +75,7 @@ jobs:
               repo: context.repo.repo,
               sha: '${{ needs.find-vercel-preview-url.outputs.latest_commit_sha }}',
               target_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
-              status: 'pending',
+              state: 'pending',
               description: 'Running Playwright tests'
             })
       # - name: Set in progress checks status
@@ -130,7 +130,7 @@ jobs:
               repo: context.repo.repo,
               sha: '${{ needs.find-vercel-preview-url.outputs.latest_commit_sha }}',
               target_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
-              status: '${{ steps.tests-step.conclusion }}',
+              state: '${{ steps.tests-step.conclusion }}',
               description: 'Playwright tests are ${{ steps.tests-step.conclusion }}'
             })
       # - name: Set commit status
