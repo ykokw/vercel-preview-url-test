@@ -4,6 +4,7 @@ test('has title', async ({ page }) => {
   await page.goto('/');
 
   await expect(page).toHaveTitle(/Create Next App/);
+  await expect(page).toHaveURL(/localhost/);
 });
 
 test('has documents link', async ({ page }) => {
