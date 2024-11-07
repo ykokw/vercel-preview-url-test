@@ -77,7 +77,6 @@ jobs:
     permissions:
       pull-requests: write
       statuses: write
-      # checks: write
     steps:
       - name: Set pending commit status
         uses: actions/github-script@v7
@@ -95,22 +94,6 @@ jobs:
               description: 'Running Playwright tests',
               context: 'Playwright tests'
             })
-      # - name: Set in progress checks status
-      #   uses: actions/github-script@v7
-      #   id: set-in-progress-status
-      #   if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test')
-      #   with:
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-      #     script: |
-      #       const check = await github.rest.checks.create({
-      #         name: 'Playwright test',
-      #         head_sha: '${{ needs.find-vercel-preview-url.outputs.latest_commit_sha }}',
-      #         details_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
-      #         status: 'in_progress',
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo
-      #       })
-      #       return check.data.id
       # see also: https://github.com/actions/checkout/issues/331#issuecomment-1969717208
       - uses: actions/checkout@v4
         with:
@@ -151,23 +134,3 @@ jobs:
               description: 'Playwright tests are ${{ steps.tests-step.conclusion }}',
               context: 'Playwright tests'
             })
-      # - name: Set commit status
-      #   uses: actions/github-script@v7
-      #   if: github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test') && !cancelled()
-      #   with:
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-      #     script: |
-      #       github.rest.checks.update({
-      #         check_run_id: ${{ steps.set-in-progress-status.outputs.result }},
-      #         name: 'Playwright test',
-      #         head_sha: '${{ needs.find-vercel-preview-url.outputs.latest_commit_sha }}',
-      #         status: 'completed',
-      #         details_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
-      #         conclusion: '${{ steps.tests-step.conclusion}}',
-      #         output: {
-      #           title: 'Playwright test',
-      #           summary: 'Results: ${{ steps.tests-step.conclusion }}',
-      #         },
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo
-      #       })
