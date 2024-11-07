@@ -13,7 +13,10 @@ on:
 #      - synchronize
 
 env:
-  IS_PULL_REQUEST_COMMENT: ${{ github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test') }}
+  IS_PULL_REQUEST_COMMENT: |
+    ${{ github.event_name == 'issue_comment' &&
+    github.event.issue.pull_request &&
+    contains(github.event.comment.body, '/run-ui-test') }}
 
 jobs:
   find-vercel-preview-url:
@@ -26,9 +29,8 @@ jobs:
       vercel_preview_url: "https://${{ steps.find-vercel-preview-url.outputs.preview_url }}"
       latest_commit_sha: ${{ steps.set_latest_commit_sha.outputs.latest_commit_sha }}
     if: |
-      github.event_name == 'pull_request_target' ||
       github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '.run-ui-test')
+      ${{ env.IS_PULL_REQUEST_COMMENT == 'true' }}
     steps:
       - name: Add reaction to pull request comment
         uses: actions/github-script@v7
@@ -75,7 +77,6 @@ jobs:
       VERCEL_PROTECTION_BYPASS: ${{ secrets.VERCEL_PROTECTION_BYPASS }}
       UI_TEST_TARGET_URL: ${{ needs.find-vercel-preview-url.outputs.vercel_preview_url }}
     permissions:
-      pull-requests: write
       statuses: write
     steps:
       - name: Set pending commit status
@@ -108,11 +109,6 @@ jobs:
       - name: Run Playwright tests
         id: tests-step
         run: npx playwright test
-      - name: Comment test results to PR
-        uses: daun/playwright-report-summary@v3
-        if: ${{ env.IS_PULL_REQUEST_COMMENT == 'true' }}
-        with:
-          report-file: test-results.json
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
