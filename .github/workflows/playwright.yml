@@ -38,6 +38,8 @@ jobs:
         run: echo "${{ env.IS_PULL_REQUEST_COMMENT == 'true' }}"
       - name: debug 2
         run: echo "${{ env.IS_PULL_REQUEST_COMMENT == true }}"
+      - name: debug 3
+        run: echo "${{ env.IS_PULL_REQUEST_COMMENT }}"
       - name: Add reaction to pull request comment
         uses: actions/github-script@v7
         if: ${{ env.IS_PULL_REQUEST_COMMENT == 'true' }}
