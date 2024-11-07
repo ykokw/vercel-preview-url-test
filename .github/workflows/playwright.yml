@@ -76,9 +76,9 @@ jobs:
             github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              sha: '${{ steps.get_pr_details.outputs.latest_commit_sha }}',
+              sha: '${{ steps.set_latest_commit_sha.outputs.latest_commit_sha }}',
               target_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
-              state: '${{ steps.tests-step.conclusion }}',
+              state: '${{ steps.find-vercel-preview-url.conclusion }}',
               description: 'Playwright tests are failed',
               context: 'Playwright tests'
             })
