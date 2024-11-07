@@ -4,7 +4,7 @@ test('has title', async ({ page }) => {
   await page.goto('/');
 
   await expect(page).toHaveTitle(/Create Next App/);
-  await expect(page).toHaveURL(/localhost/);
+  await expect(page.getByRole('link', { name: 'Deploy now'})).toBeVisible();
 });
 
 test('has documents link', async ({ page }) => {
