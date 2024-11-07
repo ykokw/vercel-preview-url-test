@@ -67,6 +67,22 @@ jobs:
           vercel_project_id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel_limit: 50
           vercel_state: READY
+      - name: Set failed commit status
+        uses: actions/github-script@v7
+        if: ${{ failure() && env.IS_PULL_REQUEST_COMMENT == 'true' }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: '${{ steps.get_pr_details.outputs.latest_commit_sha }}',
+              target_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
+              state: '${{ steps.tests-step.conclusion }}',
+              description: 'Playwright tests are failed',
+              context: 'Playwright tests'
+            })
+
   test:
     timeout-minutes: 15
     runs-on: ubuntu-latest
