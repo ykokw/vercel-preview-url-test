@@ -68,6 +68,7 @@ jobs:
           vercel_project_id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel_limit: 50
           vercel_state: READY
+          vercel_target: ${{ github.ref_name == 'master' && 'production' || 'preview' }}
       - name: Set failed commit status
         uses: actions/github-script@v7
         if: ${{ failure() && env.IS_PULL_REQUEST_COMMENT == 'true' }}
