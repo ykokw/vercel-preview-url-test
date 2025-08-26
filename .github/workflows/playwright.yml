@@ -157,7 +157,7 @@ jobs:
 
   merge-reports:
     # Merge reports after playwright-tests, even if some shards have failed
-    if: ${{ !cancelled() && needs.test.outputs.vercel_preview_url != '' }}
+    if: ${{ !cancelled() && needs.find-vercel-preview-url.outputs.vercel_preview_url != '' }}
     needs: [find-vercel-preview-url, test]
     runs-on: ubuntu-latest
     permissions:
