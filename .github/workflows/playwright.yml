@@ -21,7 +21,7 @@ jobs:
     name: Find Vercel Preview URL
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: read
+      pull-requests: write
       statuses: write
     outputs:
       vercel_preview_url: "https://${{ steps.find-vercel-preview-url.outputs.preview_url }}"
