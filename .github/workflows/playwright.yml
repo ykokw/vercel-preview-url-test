@@ -185,6 +185,7 @@ jobs:
         if: always()
         with:
           report-file: results.json
+          custom-info: "See also: [Workflow Summary](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
 
       - name: Upload HTML report
         uses: actions/upload-artifact@v4
