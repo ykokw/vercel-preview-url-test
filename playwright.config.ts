@@ -33,7 +33,17 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
-    ? [["github"], ["html"], ["json", { outputFile: "test-results.json" }]]
+    ? [
+        ["github"],
+        ["html"],
+        [
+          "@estruyf/github-actions-reporter",
+          {
+            showTags: false,
+            showArtifactsLink: true,
+          },
+        ],
+      ]
     : "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -45,7 +55,7 @@ export default defineConfig({
     extraHTTPHeaders: {
       // NOTE: Skip Vercel toolbar in the test environment.
       "x-vercel-skip-toolbar": "1",
-      "x-vercel-protection-bypass": process.env.VERCEL_PROTECTION_BYPASS ?? '',
+      "x-vercel-protection-bypass": process.env.VERCEL_PROTECTION_BYPASS ?? "",
     },
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
