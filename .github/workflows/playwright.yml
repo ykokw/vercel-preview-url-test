@@ -92,6 +92,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [find-vercel-preview-url]
     if: ${{ needs.find-vercel-preview-url.outputs.vercel_preview_url != '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2]
+        shardTotal: [2]
     env:
       VERCEL_PROTECTION_BYPASS: ${{ secrets.VERCEL_PROTECTION_BYPASS }}
       UI_TEST_TARGET_URL: ${{ needs.find-vercel-preview-url.outputs.vercel_preview_url }}
@@ -127,13 +132,13 @@ jobs:
         run: npx playwright install --with-deps
       - name: Run Playwright tests
         id: tests-step
-        run: npx playwright test
+        run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
+          name: blob-report-${{ matrix.shardIndex }}
+          path: blob-report
+          retention-days: 1
       - name: Set commit status
         uses: actions/github-script@v7
         if: ${{ !cancelled() && env.IS_PULL_REQUEST_COMMENT == 'true' }}
@@ -147,5 +152,56 @@ jobs:
               target_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
               state: '${{ steps.tests-step.conclusion }}',
               description: 'Playwright tests are ${{ steps.tests-step.conclusion }}',
+              context: 'Playwright test job ${{ matrix.shardIndex }} / ${{ matrix.shardTotal }}'
+            })
+
+  merge-reports:
+    # Merge reports after playwright-tests, even if some shards have failed
+    if: ${{ !cancelled() }}
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download blob reports from GitHub Actions Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-blob-reports
+          pattern: blob-report-*
+          merge-multiple: true
+
+      - name: Merge into HTML Report
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
+
+      - uses: daun/playwright-report-summary@v3
+        if: always()
+        with:
+          report-file: results.json
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report--attempt-${{ github.run_attempt }}
+          path: playwright-report
+          retention-days: 7
+      - name: Set completed commit status
+        uses: actions/github-script@v7
+        id: set-in-progress-status
+        if: ${{ env.IS_PULL_REQUEST_COMMENT == 'true' }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: '${{ needs.find-vercel-preview-url.outputs.latest_commit_sha }}',
+              target_url: 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
+              state: 'success',
+              description: 'Completed Playwright tests. see also each job result.',
               context: 'Playwright tests'
             })
