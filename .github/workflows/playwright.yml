@@ -21,7 +21,6 @@ jobs:
     name: Find Vercel Preview URL
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
       statuses: write
     outputs:
       vercel_preview_url: "https://${{ steps.find-vercel-preview-url.outputs.preview_url }}"
@@ -158,8 +157,10 @@ jobs:
   merge-reports:
     # Merge reports after playwright-tests, even if some shards have failed
     if: ${{ !cancelled() }}
-    needs: [test]
+    needs: [find-vercel-preview-url, test]
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
